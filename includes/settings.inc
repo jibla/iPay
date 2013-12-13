@@ -8,6 +8,17 @@
  */
 function ipay_settings_form() {
 	$form = array();
+	
+	$form['ipay_service_url'] = array(
+	 '#type'          => 'textfield',
+	 '#disabled'			=> TRUE,
+	 '#title'         => t('Service URL'),
+	 '#default_value' => variable_get('ipay_service_url', ''),
+	 '#description'   => t("send this URL to iPay's technical team"),
+	 '#default_value'	=> url('ipay-server', array('absolute' => TRUE)),
+	 '#required'      => TRUE,
+	);
+	
 	$form['ipay_username'] = array(
 	 '#type'          => 'textfield',
 	 '#title'         => t('Username'),
