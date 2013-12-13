@@ -9,13 +9,20 @@
 function ipay_settings_form() {
 	$form = array();
 	
+	$form['ipay_service_enabled'] = array(
+	 '#type'          =>	'checkbox',
+	 '#title'         =>	t('Service is enabled'),
+	 '#default_value' =>	variable_get('ipay_service_enabled', 1),
+	);
+
+	
 	$form['ipay_service_url'] = array(
 	 '#type'          => 'textfield',
 	 '#disabled'			=> TRUE,
 	 '#title'         => t('Service URL'),
 	 '#default_value' => variable_get('ipay_service_url', ''),
 	 '#description'   => t("send this URL to iPay's technical team"),
-	 '#default_value'	=> url('ipay-server', array('absolute' => TRUE)),
+	 '#value'	=> url('ipay-server', array('absolute' => TRUE)),
 	 '#required'      => TRUE,
 	);
 	
@@ -47,7 +54,7 @@ function ipay_settings_form() {
 	 '#type'          => 'textfield',
 	 '#title'         => t('iPay\'s servers IP Address(es)'),
 	 '#default_value' => variable_get('ipay_host', ''),
-	 '#description'   => t("specify range with dash"),
+	 '#description'   => t("specify range with dash. e.g. 176.221.231.45-176.221.231.145"),
 	 '#required'      => FALSE,
 	);
 	
