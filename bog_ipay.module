@@ -1,5 +1,24 @@
 <?php
 
+/* status codes  */
+define('iPAY_STATUS_CODE_OK', 0);
+define('iPAY_STATUS_CODE_ACCESS_DENIED', 1);
+define('iPAY_STATUS_CODE_CREDENTIALS_ARE_INCORRECT', 2);
+define('iPAY_STATUS_CODE_HASH_IS_INCORRECT', 3);
+define('iPAY_STATUS_CODE_REQUIRED_PARAMETER_IS_MISSING', 4);
+define('iPAY_STATUS_CODE_PARAMETER_VALUE_IS_MISSING', 5);
+define('iPAY_STATUS_CODE_USER_WASNT_FOUND', 6);
+define('iPAY_STATUS_CODE_USER_AMOUNT_IS_INCORRECT', 7);
+define('iPAY_STATUS_CODE_PAYMENT_ID_ISNOT_UNIQUE', 8);
+define('iPAY_STATUS_CODE_PAYMENT_IS_IMPOSSIBLE', 9);
+define('iPAY_STATUS_CODE_SERVICE_DOESNT_EXIST', 10);
+define('iPAY_STATUS_CODE_PAYMENT_WAS_SUCCESSFULL_THOUGH_PAYMENT_ID_WASNT_UNIQUE', 18);
+define('iPAY_STATUS_CODE_OVERALL_ERROR', 99);
+
+
+
+
+
 /**
  * implements hook_menu
  *
@@ -21,7 +40,7 @@ function bog_ipay_menu() {
 	$items['ipay-server'] = array(
 		'title'            =>	t('iPay Service'),
 		'type'             =>	MENU_CALLBACK,
-		'access callback'  => 'ipay_access_callback',
+		'access callback'  =>	'ipay_access_callback',
 		'page callback'    =>	'ipay_server_callback',
 		'access arguments' =>	array('access content'),
 	);
@@ -48,5 +67,85 @@ function ipay_access_callback() {
  * @author Giorgi Jibladze
  */
 function ipay_server_callback() {
-	print 'a';
+	
+	/* create request object */
+	$params = drupal_get_query_parameters();
+	$params = array_filter($params);
+	
+	/* timestamp */
+	$time = time();
+
+
+	/* check for hash string */
+	if (!empty($params['HASH_CODE'])) {
+		$hash = '';
+		foreach($params as $name => $value) {
+			if ($name == 'HASH_CODE')
+				continue;
+			$hash .= $value;
+		}
+		$hash .= variable_get('ipay_secret_key', '');
+		$hash = md5($hash);
+
+		if (strtoupper($hash) !== $params['HASH_CODE']) {
+			ipay_return_error_xml(iPAY_STATUS_CODE_HASH_IS_INCORRECT, $time, 'Hash is incorrect');
+		}
+	} else {
+		ipay_return_error_xml(iPAY_STATUS_CODE_REQUIRED_PARAMETER_IS_MISSING, $time, 'Hash code is missing');
+	}
+	
+	/* check for credentials */
+	if ($params['USERNAME'] !== variable_get('ipay_username', '') || $params['PASSWORD'] !== variable_get('ipay_password', '')) {
+		ipay_return_error_xml(iPAY_STATUS_CODE_CREDENTIALS_ARE_INCORRECT, $time, 'Username or password is incorrect');
+	}
+	
+	/* check for IP(s) */
+	$ips = variable_get('ipay_host', '');
+	if (!empty($ips)) {
+		$request_ip = ip_address();
+		
+		$ips = explode('-', $ips);
+		if (sizeof($ips) > 1) {
+			$start_ip = ip2long($ips[0]);
+			$end_ip = ip2long($ips[1]);
+			
+			if ($request_ip >= $start_ip && $request_ip <= $end_ip) {
+				// we are fine
+			} else {
+				ipay_return_error_xml(iPAY_STATUS_CODE_ACCESS_DENIED, $time, 'Request was made from untrusted host');
+			}
+		} elseif(sizeof($ips) == 1) {
+			if ($request_ip != $ips[0]) {
+				ipay_return_error_xml(iPAY_STATUS_CODE_ACCESS_DENIED, $time, 'Request was made from untrusted host');
+			}
+		}
+	}
+	
+	drupal_add_http_header('Content-Type: application/xml; charset=utf-8');
+	print implode("\n", $xml_output);
+	module_invoke_all('exit');
 }
+
+
+/**
+ * outputs error xml 
+ *
+ * @return void
+ * @author Giorgi Jibladze
+ */
+function ipay_return_error_xml($error_code, $time, $description = '') {
+	if (is_numeric($error_code)) {
+		$xml_output = array();
+		$xml_output[] = '<?xml version="1.0" encoding="UTF-8"?>';
+		$xml_output[] = '<pay-response>';
+		$xml_output[] = sprintf('<status code="%d">%s</status>', $error_code, $description);
+		$xml_output[] = sprintf('<timestamp>%s</timestamp>', $time);
+		$xml_output[] = '</pay-response>';
+	}
+	
+	drupal_add_http_header('Content-Type: application/xml; charset=utf-8');
+	print implode("\n", $xml_output);
+	module_invoke_all('exit');
+	drupal_exit();
+}
+
