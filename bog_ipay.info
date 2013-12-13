@@ -1,0 +1,4 @@
+name = "BOG iPay"
+description = "BOG's iPay implementation"
+core = 7.x
+package = Omedia
