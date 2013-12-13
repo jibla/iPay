@@ -1,19 +1,52 @@
 <?php
 
 /**
- * implements hook_menu()
+ * implements hook_menu
+ *
+ * @return Array
+ * @author Giorgi Jibladze
  */
 function bog_ipay_menu() {
+	
+	$items['admin/config/ipay/settings'] = array(
+		'title'             =>	'iPay Settings',
+		'description'       => 	'iPay service parameters',
+		'page callback'     =>	'drupal_get_form',
+		'page arguments'    =>	array('ipay_settings_form'),
+		'access arguments'  =>	array('administer settings'),
+		'type'              =>	MENU_NORMAL_ITEM,
+		'file'              =>	'includes/settings.inc',
+	);
+	
 	$items['ipay-server'] = array(
-		'title' =>	t('iPay Service'),
-		'type'	=>	MENU_LOCAL_ITEM,
-		'access callback' => 'ipay_access_callback'
+		'title'            =>	t('iPay Service'),
+		'type'             =>	MENU_CALLBACK,
+		'access callback'  => 'ipay_access_callback',
+		'page callback'    =>	'ipay_server_callback',
+		'access arguments' =>	array('access content'),
 	);
 	
 	return $items;
 }
 
 
+/**
+ * access callback for "ipay-server" path
+ *
+ * @return boolean
+ * @author Giorgi Jibladze
+ */
 function ipay_access_callback() {
 	return TRUE;
+}
+
+
+/**
+ * callback function for "ipay-server" path
+ *
+ * @return void
+ * @author Giorgi Jibladze
+ */
+function ipay_server_callback() {
+	print 'a';
 }
