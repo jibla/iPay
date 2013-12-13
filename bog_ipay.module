@@ -1,2 +1,19 @@
 <?php
 
+/**
+ * implements hook_menu()
+ */
+function bog_ipay_menu() {
+	$items['ipay-server'] = array(
+		'title' =>	t('iPay Service'),
+		'type'	=>	MENU_LOCAL_ITEM,
+		'access callback' => 'ipay_access_callback'
+	);
+	
+	return $items;
+}
+
+
+function ipay_access_callback() {
+	return TRUE;
+}
