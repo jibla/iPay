@@ -121,11 +121,36 @@ function ipay_server_callback() {
 		}
 	}
 	
-	drupal_add_http_header('Content-Type: application/xml; charset=utf-8');
-	print implode("\n", $xml_output);
-	module_invoke_all('exit');
+	
+	switch($params['OP']) {
+		
+		case 'debt':
+		$debt = module_invoke_all('ipay_debt', $params);
+		if (!empty($debt) && isset($debt['debt']) && is_numeric($debt['debt']) && !empty($debt['info'])) {
+			ipay_output_debt($debt);
+		} elseif ($debt === FALSE) {
+			ipay_return_error_xml(iPAY_STATUS_CODE_USER_WASNT_FOUND, $time, 'User with such customer id wasnt found');
+		}
+		break;
+		
+	}
 }
 
+
+/**
+ * creates and outputs xml string from array
+ *
+ * @return void
+ * @author Giorgi Jibladze (pro)
+ */
+function _ipay_output_xml($xml) {
+	if (!empty($xml)) {
+		drupal_add_http_header('Content-Type: application/xml; charset=utf-8');
+		print implode("\n", $xml);
+		module_invoke_all('exit');
+		drupal_exit();
+	}
+}
 
 /**
  * outputs error xml 
@@ -142,10 +167,31 @@ function ipay_return_error_xml($error_code, $time, $description = '') {
 		$xml_output[] = sprintf('<timestamp>%s</timestamp>', $time);
 		$xml_output[] = '</pay-response>';
 	}
-	
-	drupal_add_http_header('Content-Type: application/xml; charset=utf-8');
-	print implode("\n", $xml_output);
-	module_invoke_all('exit');
-	drupal_exit();
+	_ipay_output_xml($xml_output);
 }
 
+
+/**
+ * debt output implementation 
+ *
+ * @return void
+ * @author Giorgi Jibladze
+ */
+function ipay_output_debt($debt) {
+	if (!empty($debt) && isset($debt['debt']) && is_numeric($debt['debt']) && !empty($debt['info'])) {
+		$xml_output = array();
+		$xml_output[] = '<?xml version="1.0" encoding="UTF-8"?>';
+		$xml_output[] = '<pay-response>';
+		$xml_output[] = '<status code="0">OK</status>';
+		$xml_output[] = sprintf('<debt>%s</debt>', $debt['debt']);
+		if (!empty($debt['info'])) {
+			$xml_output[] = '<additional-info>';
+			foreach($debt['info'] as $parameter_name => $parameter_value) {
+				$xml_output[] = sprintf('<parameter name="%s">%s</parameter>', $parameter_name, $parameter_value);
+			}
+			$xml_output[] = '</additional-info>';
+		}
+		$xml_output[] = '</pay-response>';
+	}
+	_ipay_output_xml($xml_output);
+}
