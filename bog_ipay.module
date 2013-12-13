@@ -17,8 +17,6 @@ define('iPAY_STATUS_CODE_OVERALL_ERROR', 99);
 
 
 
-
-
 /**
  * implements hook_menu
  *
@@ -125,12 +123,22 @@ function ipay_server_callback() {
 	switch($params['OP']) {
 		
 		case 'debt':
-		$debt = module_invoke_all('ipay_debt', $params);
-		if (!empty($debt) && isset($debt['debt']) && is_numeric($debt['debt']) && !empty($debt['info'])) {
-			ipay_output_debt($debt, $time);
-		} elseif ($debt === FALSE) {
-			ipay_return_error_xml(iPAY_STATUS_CODE_USER_WASNT_FOUND, $time, 'User with such customer id wasnt found');
-		}
+			$debt = module_invoke_all('ipay_debt', $params);
+			if (!empty($debt) && isset($debt['debt']) && is_numeric($debt['debt']) && !empty($debt['info'])) {
+				ipay_output_debt($debt, $time);
+			} elseif ($debt === FALSE) {
+				ipay_return_error_xml(iPAY_STATUS_CODE_USER_WASNT_FOUND, $time, 'User with such customer id wasnt found');
+			}
+		break;
+		
+		case 'verify':
+			$verify = module_invoke_all('ipay_verify', $params);
+			$verify = $verify[0];
+			if ($verify === TRUE) {
+				ipay_output_verify($time);
+			} else {
+				ipay_return_error_xml($verify['status_code'], $time, $verify['status_message']);
+			}
 		break;
 		
 	}
@@ -151,6 +159,8 @@ function _ipay_output_xml($xml) {
 		drupal_exit();
 	}
 }
+
+
 
 /**
  * outputs error xml 
@@ -196,3 +206,22 @@ function ipay_output_debt($debt, $time) {
 	}
 	_ipay_output_xml($xml_output);
 }
+
+
+/**
+ * verify output implementation 
+ *
+ * @return void
+ * @author Giorgi Jibladze
+ */
+function ipay_output_verify($time) {
+	$xml_output = array();
+	$xml_output[] = '<?xml version="1.0" encoding="UTF-8"?>';
+	$xml_output[] = '<pay-response>';
+	$xml_output[] = '<status code="0">OK</status>';
+	$xml_output[] = sprintf('<timestamp>%s</timestamp>', $time);
+	$xml_output[] = '</pay-response>';
+	
+	_ipay_output_xml($xml_output);
+}
+
