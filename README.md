@@ -92,7 +92,8 @@ array(
 $params - an Array of parameters passed from iPay server. e.g. 'OP' => 'debt', 'USERNAME' => 'someuser' etc.
 
 <strong>Return value:</strong>
-If payment is successfull, hook must return unique receipt_id, otherwise it should return an array of following structure:
+If payment is successfull, hook must return unique receipt_id, otherwise it should return an array of following 
+structure:
 <code>
 array(
   'status_code'    => one_of_defined_status_codes,
