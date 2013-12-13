@@ -126,8 +126,11 @@ function ipay_server_callback() {
 			$debt = module_invoke_all('ipay_debt', $params);
 			if (!empty($debt) && isset($debt['debt']) && is_numeric($debt['debt']) && !empty($debt['info'])) {
 				ipay_output_debt($debt, $time);
-			} elseif ($debt === FALSE) {
-				ipay_return_error_xml(iPAY_STATUS_CODE_USER_WASNT_FOUND, $time, 'User with such customer id wasnt found');
+			} elseif (is_array($debt) && isset($debt['status_code'])) {
+				if (!isset($debt['status_message'])) {
+					$debt['status_message'] = '';
+				}
+				ipay_return_error_xml($debt['status_code'], $time, $debt['status_message']);
 			}
 		break;
 		
@@ -136,7 +139,10 @@ function ipay_server_callback() {
 			$verify = $verify[0];
 			if ($verify === TRUE) {
 				ipay_output_verify($time);
-			} else {
+			} elseif(is_array($verify) && isset($verify['status_code'])) {
+				if (!isset($verify['status_message'])) {
+					$verify['status_message'] = '';
+				}
 				ipay_return_error_xml($verify['status_code'], $time, $verify['status_message']);
 			}
 		break;
