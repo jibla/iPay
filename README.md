@@ -30,7 +30,8 @@ Please fill other required fields and save the settings.
 Constants
 ==========
 
-<pre>define('iPAY_STATUS_CODE_OK', 0);
+<pre>
+define('iPAY_STATUS_CODE_OK', 0);
 define('iPAY_STATUS_CODE_ACCESS_DENIED', 1);
 define('iPAY_STATUS_CODE_CREDENTIALS_ARE_INCORRECT', 2);
 define('iPAY_STATUS_CODE_HASH_IS_INCORRECT', 3);
@@ -42,10 +43,12 @@ define('iPAY_STATUS_CODE_PAYMENT_ID_ISNOT_UNIQUE', 8);
 define('iPAY_STATUS_CODE_PAYMENT_IS_IMPOSSIBLE', 9);
 define('iPAY_STATUS_CODE_SERVICE_DOESNT_EXIST', 10);
 define('iPAY_STATUS_CODE_PAYMENT_WAS_SUCCESSFULL_THOUGH_PAYMENT_ID_WASNT_UNIQUE', 18);
-define('iPAY_STATUS_CODE_OVERALL_ERROR', 99);</pre>
+define('iPAY_STATUS_CODE_OVERALL_ERROR', 99);
+</pre>
 
 Hooks
 ==========
+
 <pre>
 <strong>function</strong> hook_ipay_debt($params)
 
