@@ -19,13 +19,13 @@ Installation
 Usage
 ==========
 
-- Navigate to /admin/config/ipay/settings, you will see following settings page for iPay module
+Navigate to /admin/config/ipay/settings, you will see following settings page for iPay module
 ![Settings page](settings.png "Settings page")
 
 "Service URL" field will be automatically generated for you.
 Please fill other required fields and save the settings.
 
-- Module provides full integration with BOG's iPay service. It fires standard drupal hooks for every event (requests from iPay servers) and ANY module is able to hook into that events and implement their custom logic.
+Module provides full integration with BOG's iPay service. It fires standard drupal hooks for every event (requests from iPay servers) and ANY module is able to hook into that events and implement their custom logic.
 
 
 Constants
