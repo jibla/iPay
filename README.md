@@ -31,7 +31,8 @@ Please fill other required fields and save the settings.
 Constants
 ==========
 
-<pre>
+
+```php
 define('iPAY_STATUS_CODE_OK', 0);
 define('iPAY_STATUS_CODE_ACCESS_DENIED', 1);
 define('iPAY_STATUS_CODE_CREDENTIALS_ARE_INCORRECT', 2);
@@ -45,20 +46,21 @@ define('iPAY_STATUS_CODE_PAYMENT_IS_IMPOSSIBLE', 9);
 define('iPAY_STATUS_CODE_SERVICE_DOESNT_EXIST', 10);
 define('iPAY_STATUS_CODE_PAYMENT_WAS_SUCCESSFULL_THOUGH_PAYMENT_ID_WASNT_UNIQUE', 18);
 define('iPAY_STATUS_CODE_OVERALL_ERROR', 99);
-</pre>
+```
+
 
 Hooks
 ==========
 
-<pre>
-<strong>function</strong> hook_ipay_debt($params)
-
+```php
+function hook_ipay_debt($params)
+```
 <strong>Parameters:</strong>
 $params - an Array of parameters passed from iPay server. e.g. 'OP' => 'debt', 'USERNAME' => 'someuser' etc.
 
 <strong>Return value:</strong>
 According to iPay's specification of debt request, this hook must return an array of following structure:
-<code>
+```php
 array(
   'debt' => $debt_value_according_to_ipay_requirements,
   'info' => array(
@@ -66,41 +68,38 @@ array(
     'someparam1' => 'somevalue1'
   ),
 );
-</code>
-</pre>
+```
 
-<pre>
-<strong>function</strong> hook_ipay_verify($params)
-
+```php
+function hook_ipay_verify($params)
+```
 <strong>Parameters:</strong>
 $params - an Array of parameters passed from iPay server. e.g. 'OP' => 'debt', 'USERNAME' => 'someuser' etc.
 
 <strong>Return value:</strong>
 Hook must return TRUE, if passed values verified fine. Otherwise, it should return an array of following structure:
-<code>
+```php
 array(
   'status_code'    => one_of_defined_status_codes,
   'status_message' => 'custom_status_message'
 );
-</code>
-</pre>
+```
 
-<pre>
-<strong>function</strong> hook_ipay_pay($params)
-
+```php
+function hook_ipay_pay($params)
+```
 <strong>Parameters:</strong>
 $params - an Array of parameters passed from iPay server. e.g. 'OP' => 'debt', 'USERNAME' => 'someuser' etc.
 
 <strong>Return value:</strong>
 If payment is successfull, hook must return unique receipt_id, otherwise it should return an array of following 
 structure:
-<code>
+```php
 array(
   'status_code'    => one_of_defined_status_codes,
   'status_message' => 'custom_status_message'
 );
-</code>
-</pre>
+```
 
 Author/maintainer
 ===================
